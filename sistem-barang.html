@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiBarang — Sistem Pengelolaan Barang Hilang & Ditemukan</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1a56db;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e3a8a;
+  --secondary: #0ea5e9;
+  --accent: #f59e0b;
+  --accent2: #10b981;
+  --danger: #ef4444;
+  --warn: #f97316;
+  --purple: #8b5cf6;
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #f8faff;
+  --border: #dde6ff;
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --sidebar-w: 240px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+/* ── AUTH ───────────────────────────────── */
+.auth-wrap {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1a56db 50%, #0ea5e9 100%);
+  padding:24px; position:relative; overflow:hidden;
+}
+.auth-wrap::before {
+  content:''; position:absolute; inset:0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.auth-blob {
+  position:absolute; border-radius:50%; filter:blur(80px); opacity:0.15;
+}
+.auth-blob-1 { width:400px; height:400px; background:#60a5fa; top:-100px; right:-100px; }
+.auth-blob-2 { width:300px; height:300px; background:#34d399; bottom:-80px; left:-80px; }
+
+.auth-card {
+  background:white; border-radius:24px; padding:40px;
+  width:100%; max-width:420px; position:relative; z-index:1;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+}
+.auth-logo {
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.auth-logo-icon {
+  width:44px; height:44px; border-radius:12px;
+  background:linear-gradient(135deg,#1a56db,#0ea5e9);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+}
+.auth-logo-text { font-size:22px; font-weight:800; color:#1e3a8a; }
+.auth-logo-text span { color:#1a56db; }
+.auth-subtitle { font-size:13px; color:var(--text2); margin-bottom:28px; }
+.auth-title { font-size:20px; font-weight:700; margin-bottom:6px; }
+.auth-desc { font-size:13px; color:var(--text2); margin-bottom:24px; }
+
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+.form-input {
+  width:100%; padding:11px 14px; border:1.5px solid var(--border);
+  border-radius:10px; font-size:14px; font-family:inherit;
+  color:var(--text); background:var(--surface2); outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.form-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(26,86,219,.12); background:white; }
+.form-input::placeholder { color:var(--text3); }
+
+.role-selector { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+.role-btn {
+  border:1.5px solid var(--border); border-radius:10px; padding:10px 6px;
+  text-align:center; cursor:pointer; transition:all .2s; background:var(--surface2);
+}
+.role-btn.active { border-color:var(--primary); background:rgba(26,86,219,.07); }
+.role-btn-icon { font-size:20px; margin-bottom:4px; }
+.role-btn-label { font-size:11px; font-weight:600; color:var(--text2); }
+.role-btn.active .role-btn-label { color:var(--primary); }
+
+.btn {
+  display:inline-flex; align-items:center; gap:7px; padding:11px 20px;
+  border-radius:10px; font-size:13px; font-family:inherit;
+  font-weight:600; cursor:pointer; border:none; transition:all .2s;
+  letter-spacing:.01em;
+}
+.btn-primary { background:var(--primary); color:white; }
+.btn-primary:hover { background:#1648c9; transform:translateY(-1px); box-shadow:0 4px 16px rgba(26,86,219,.3); }
+.btn-success { background:var(--accent2); color:white; }
+.btn-success:hover { background:#059669; }
+.btn-warn { background:var(--warn); color:white; }
+.btn-warn:hover { background:#ea580c; }
+.btn-danger { background:var(--danger); color:white; }
+.btn-danger:hover { background:#dc2626; }
+.btn-ghost { background:transparent; color:var(--primary); border:1.5px solid var(--border); }
+.btn-ghost:hover { border-color:var(--primary); background:rgba(26,86,219,.06); }
+.btn-sm { padding:6px 12px; font-size:12px; border-radius:7px; }
+.btn-full { width:100%; justify-content:center; }
+
+.auth-divider { text-align:center; font-size:12px; color:var(--text3); margin:16px 0; position:relative; }
+.auth-divider::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:var(--border); }
+.auth-divider span { background:white; padding:0 12px; position:relative; }
+.auth-link { text-align:center; font-size:13px; color:var(--text2); }
+.auth-link a { color:var(--primary); font-weight:600; cursor:pointer; text-decoration:none; }
+
+/* ── LAYOUT ─────────────────────────────── */
+.app { display:none; min-height:100vh; }
+.app.show { display:flex; }
+
+.sidebar {
+  width:var(--sidebar-w); background:white; border-right:1px solid var(--border);
+  display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:50;
+}
+.sidebar-logo {
+  padding:20px 20px 16px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-logo-icon {
+  width:36px; height:36px; border-radius:10px;
+  background:linear-gradient(135deg,#1a56db,#0ea5e9);
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+  flex-shrink:0;
+}
+.sidebar-logo-text { font-size:15px; font-weight:800; color:#1e3a8a; line-height:1.2; }
+.sidebar-logo-text small { display:block; font-size:10px; font-weight:500; color:var(--text3); }
+
+.sidebar-section { padding:16px 12px 8px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text3); }
+
+.nav-item {
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border-radius:10px; margin:2px 8px; cursor:pointer; transition:all .18s;
+  font-size:13px; font-weight:500; color:var(--text2);
+}
+.nav-item:hover { background:var(--bg); color:var(--primary); }
+.nav-item.active { background:rgba(26,86,219,.1); color:var(--primary); font-weight:600; }
+.nav-item.active .nav-icon { color:var(--primary); }
+.nav-icon { font-size:16px; width:20px; text-align:center; }
+.nav-badge { margin-left:auto; background:var(--danger); color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; }
+
+.sidebar-footer {
+  margin-top:auto; padding:16px; border-top:1px solid var(--border);
+}
+.user-info { display:flex; align-items:center; gap:10px; }
+.user-avatar {
+  width:36px; height:36px; border-radius:10px;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; font-weight:700; color:white; flex-shrink:0;
+}
+.user-name { font-size:13px; font-weight:600; color:var(--text); }
+.user-role { font-size:11px; color:var(--text3); }
+.user-logout { margin-left:auto; background:none; border:none; cursor:pointer; font-size:16px; color:var(--text3); padding:4px; border-radius:6px; }
+.user-logout:hover { color:var(--danger); }
+
+/* ── MAIN CONTENT ───────────────────────── */
+.main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; min-height:100vh; }
+
+.topbar {
+  background:white; border-bottom:1px solid var(--border);
+  padding:14px 28px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:40;
+}
+.topbar-title { font-size:17px; font-weight:700; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.notif-btn {
+  position:relative; width:36px; height:36px; border-radius:10px;
+  border:1.5px solid var(--border); background:white; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.notif-dot { position:absolute; top:6px; right:6px; width:8px; height:8px; background:var(--danger); border-radius:50%; border:2px solid white; }
+
+.content { padding:28px; flex:1; }
+
+/* ── PAGES ──────────────────────────────── */
+.page { display:none; }
+.page.active { display:block; animation:fadeSlide .25s ease; }
+@keyframes fadeSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.page-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; gap:12px; }
+.page-title { font-size:22px; font-weight:800; }
+.page-desc { font-size:13px; color:var(--text2); margin-top:3px; }
+
+/* ── STATS CARDS ────────────────────────── */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
+.stat-card {
+  background:white; border-radius:14px; padding:20px;
+  border:1px solid var(--border); position:relative; overflow:hidden;
+  transition:transform .2s, box-shadow .2s;
+}
+.stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.08); }
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
+.stat-card.blue::before { background:var(--primary); }
+.stat-card.orange::before { background:var(--accent); }
+.stat-card.green::before { background:var(--accent2); }
+.stat-card.red::before { background:var(--danger); }
+.stat-card.purple::before { background:var(--purple); }
+.stat-icon { font-size:28px; margin-bottom:10px; }
+.stat-num { font-size:30px; font-weight:800; font-family:'JetBrains Mono',monospace; color:var(--text); }
+.stat-label { font-size:12px; color:var(--text2); margin-top:2px; font-weight:500; }
+.stat-trend { font-size:11px; margin-top:8px; color:var(--accent2); font-weight:600; }
+
+/* ── TABLE ──────────────────────────────── */
+.table-card { background:white; border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:24px; }
+.table-head { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.table-head-title { font-size:15px; font-weight:700; }
+.table-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.search-input {
+  padding:7px 12px; border:1.5px solid var(--border); border-radius:8px;
+  font-size:13px; font-family:inherit; outline:none; width:200px;
+  transition:border-color .2s;
+}
+.search-input:focus { border-color:var(--primary); }
+.filter-select {
+  padding:7px 10px; border:1.5px solid var(--border); border-radius:8px;
+  font-size:12px; font-family:inherit; outline:none; cursor:pointer;
+}
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th { background:#f8faff; padding:11px 16px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--text3); font-weight:700; border-bottom:1px solid var(--border); white-space:nowrap; }
+tbody td { padding:12px 16px; border-bottom:1px solid #f0f4ff; vertical-align:middle; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:#fafbff; }
+
+/* ── BADGES ─────────────────────────────── */
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
+.badge-blue { background:rgba(26,86,219,.1); color:var(--primary); }
+.badge-green { background:rgba(16,185,129,.12); color:#059669; }
+.badge-orange { background:rgba(245,158,11,.12); color:#d97706; }
+.badge-red { background:rgba(239,68,68,.12); color:#dc2626; }
+.badge-purple { background:rgba(139,92,246,.12); color:#7c3aed; }
+.badge-gray { background:#f1f5f9; color:var(--text2); }
+
+/* ── CARDS GRID ─────────────────────────── */
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; margin-bottom:24px; }
+.item-card {
+  background:white; border-radius:14px; border:1px solid var(--border);
+  overflow:hidden; transition:transform .2s, box-shadow .2s; cursor:pointer;
+}
+.item-card:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,.1); }
+.item-card-img {
+  height:130px; background:linear-gradient(135deg,#dde6ff,#bfdbfe);
+  display:flex; align-items:center; justify-content:center; font-size:52px;
+  position:relative;
+}
+.item-card-status { position:absolute; top:10px; right:10px; }
+.item-card-body { padding:16px; }
+.item-card-title { font-size:15px; font-weight:700; margin-bottom:4px; }
+.item-card-meta { font-size:12px; color:var(--text2); display:flex; flex-direction:column; gap:3px; }
+.item-card-meta span { display:flex; align-items:center; gap:5px; }
+.item-card-foot { padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; }
+
+/* ── FORM MODAL ─────────────────────────── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+.modal-overlay.open { display:flex; }
+.modal { background:white; border-radius:20px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; animation:modalIn .2s ease; }
+@keyframes modalIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+.modal-head { padding:22px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:white; z-index:1; }
+.modal-title { font-size:17px; font-weight:700; }
+.modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text3); padding:4px 8px; border-radius:6px; line-height:1; }
+.modal-close:hover { color:var(--danger); background:#fff5f5; }
+.modal-body { padding:24px; }
+.modal-foot { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.form-textarea { resize:vertical; min-height:90px; }
+.form-select { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-family:inherit; color:var(--text); background:var(--surface2); outline:none; cursor:pointer; }
+.form-select:focus { border-color:var(--primary); }
+.form-hint { font-size:11px; color:var(--text3); margin-top:4px; }
+
+/* ── DETAIL PANEL ───────────────────────── */
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.detail-item label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text3); display:block; margin-bottom:4px; }
+.detail-item p { font-size:14px; color:var(--text); font-weight:500; }
+
+/* ── TIMELINE ───────────────────────────── */
+.timeline { position:relative; }
+.timeline::before { content:''; position:absolute; left:16px; top:0; bottom:0; width:2px; background:var(--border); }
+.timeline-item { display:flex; gap:16px; padding-bottom:20px; position:relative; }
+.timeline-dot { width:32px; height:32px; border-radius:50%; background:white; border:2px solid var(--primary); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; z-index:1; }
+.timeline-body { flex:1; }
+.timeline-title { font-size:13px; font-weight:600; }
+.timeline-time { font-size:11px; color:var(--text3); margin-top:2px; }
+
+/* ── NOTIF PANEL ────────────────────────── */
+.notif-list { display:flex; flex-direction:column; gap:0; }
+.notif-item { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; cursor:pointer; transition:background .15s; }
+.notif-item:hover { background:var(--bg); }
+.notif-item.unread { background:#f0f7ff; }
+.notif-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.notif-text { flex:1; }
+.notif-title { font-size:13px; font-weight:600; }
+.notif-desc { font-size:12px; color:var(--text2); margin-top:2px; }
+.notif-time { font-size:11px; color:var(--text3); margin-top:3px; }
+.notif-dot2 { width:8px; height:8px; background:var(--primary); border-radius:50%; margin-top:4px; flex-shrink:0; }
+
+/* ── DASHBOARD CHARTS placeholder ────────── */
+.chart-placeholder {
+  background:var(--surface2); border-radius:12px; border:1px solid var(--border);
+  padding:24px; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:8px; color:var(--text3); font-size:13px;
+  min-height:180px;
+}
+.mini-bars { display:flex; align-items:flex-end; gap:8px; height:80px; }
+.mini-bar { border-radius:6px 6px 0 0; width:28px; transition:opacity .2s; cursor:pointer; }
+.mini-bar:hover { opacity:.8; }
+
+/* ── EMPTY STATE ────────────────────────── */
+.empty-state { text-align:center; padding:48px 24px; color:var(--text3); }
+.empty-state-icon { font-size:48px; margin-bottom:12px; }
+.empty-state-text { font-size:14px; font-weight:600; color:var(--text2); }
+.empty-state-sub { font-size:12px; margin-top:4px; }
+
+/* ── TOAST ──────────────────────────────── */
+.toast { position:fixed; bottom:24px; right:24px; padding:12px 18px; border-radius:12px; font-size:13px; font-weight:600; z-index:9999; transform:translateY(20px); opacity:0; transition:all .3s; pointer-events:none; display:flex; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,.15); }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast-success { background:#065f46; color:#6ee7b7; }
+.toast-error { background:#7f1d1d; color:#fca5a5; }
+.toast-info { background:#1e3a8a; color:#93c5fd; }
+
+/* ── PROFILE PAGE ───────────────────────── */
+.profile-header { background:linear-gradient(135deg,#1e3a8a,#1a56db); border-radius:16px; padding:28px; color:white; margin-bottom:24px; display:flex; align-items:center; gap:20px; }
+.profile-avatar { width:72px; height:72px; border-radius:18px; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; border:3px solid rgba(255,255,255,.3); }
+.profile-name { font-size:22px; font-weight:800; }
+.profile-role-badge { display:inline-block; background:rgba(255,255,255,.2); padding:3px 12px; border-radius:20px; font-size:12px; font-weight:600; margin-top:6px; }
+
+/* ── RESPONSIVE ─────────────────────────── */
+@media(max-width:768px){
+  :root{ --sidebar-w:0px; }
+  .sidebar{ display:none; }
+  .main{ margin-left:0; }
+  .form-row{ grid-template-columns:1fr; }
+  .detail-grid{ grid-template-columns:1fr; }
+  .stats-grid{ grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TOAST                                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODAL: FORM BARANG                                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-barang">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-barang-title">Laporkan Barang Hilang</span>
+      <button class="modal-close" onclick="closeModal('modal-barang')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nama Barang *</label>
+        <input class="form-input" id="inp-nama-barang" placeholder="Contoh: Dompet kulit hitam">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori *</label>
+          <select class="form-select" id="inp-kategori">
+            <option value="">Pilih kategori</option>
+            <option>Elektronik</option>
+            <option>Dompet & Tas</option>
+            <option>Kunci</option>
+            <option>Pakaian</option>
+            <option>Kartu Identitas</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Warna *</label>
+          <input class="form-input" id="inp-warna" placeholder="Contoh: Hitam">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Lokasi Kejadian *</label>
+          <select class="form-select" id="inp-lokasi">
+            <option value="">Pilih lokasi</option>
+            <option>Gedung A - Lantai 1</option>
+            <option>Gedung A - Lantai 2</option>
+            <option>Gedung B - Kantin</option>
+            <option>Gedung C - Perpustakaan</option>
+            <option>Lapangan Parkir</option>
+            <option>Koridor Utama</option>
+            <option>Toilet Umum</option>
+            <option>Aula</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Kejadian *</label>
+          <input class="form-input" id="inp-tanggal" type="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi Barang</label>
+        <textarea class="form-input form-textarea" id="inp-deskripsi" placeholder="Jelaskan ciri-ciri barang secara detail (merek, ukuran, kondisi, dll)..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Foto Barang</label>
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;color:var(--text3);font-size:13px;">
+          📷 Klik untuk upload foto atau drag & drop di sini<br>
+          <small>Format: JPG, PNG (maks 5MB)</small>
+        </div>
+        <div class="form-hint">Foto membantu mempercepat proses pencocokan barang.</div>
+      </div>
+      <div class="form-group" id="jenis-group">
+        <label class="form-label">Jenis Laporan</label>
+        <select class="form-select" id="inp-jenis">
+          <option value="HILANG">🔴 Barang Hilang</option>
+          <option value="DITEMUKAN">🟢 Barang Ditemukan</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-barang')">Batal</button>
+      <button class="btn btn-primary" onclick="submitBarang()">📤 Kirim Laporan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODAL: DETAIL BARANG                                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Detail Barang</span>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-detail-body"></div>
+    <div class="modal-foot" id="modal-detail-foot"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- AUTH PAGE                                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="auth-wrap" id="auth-page">
+  <div class="auth-blob auth-blob-1"></div>
+  <div class="auth-blob auth-blob-2"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🎒</div>
+      <div class="auth-logo-text">Si<span>Barang</span></div>
+    </div>
+    <div class="auth-subtitle">Sistem Pengelolaan Barang Hilang & Ditemukan — UPGRIS</div>
+
+    <div id="login-form">
+      <div class="auth-title">Masuk ke Akun</div>
+      <div class="auth-desc">Pilih peran Anda dan masukkan kredensial untuk masuk.</div>
+      <div class="role-selector">
+        <div class="role-btn active" onclick="selectRole(this,'admin')">
+          <div class="role-btn-icon">🛡️</div>
+          <div class="role-btn-label">Admin</div>
+        </div>
+        <div class="role-btn" onclick="selectRole(this,'petugas')">
+          <div class="role-btn-icon">👮</div>
+          <div class="role-btn-label">Petugas</div>
+        </div>
+        <div class="role-btn" onclick="selectRole(this,'pengguna')">
+          <div class="role-btn-icon">👤</div>
+          <div class="role-btn-label">Pengguna</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username / Email</label>
+        <input class="form-input" id="inp-username" placeholder="Masukkan username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="inp-password" type="password" placeholder="Masukkan password">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:4px">Masuk →</button>
+      <div class="auth-divider"><span>atau</span></div>
+      <div class="auth-link">Belum punya akun? <a onclick="showRegister()">Daftar sekarang</a></div>
+    </div>
+
+    <div id="register-form" style="display:none">
+      <div class="auth-title">Buat Akun Baru</div>
+      <div class="auth-desc">Daftarkan diri untuk melaporkan barang hilang.</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap</label>
+          <input class="form-input" placeholder="Nama lengkap">
+        </div>
+        <div class="form-group">
+          <label class="form-label">NIM / NIP</label>
+          <input class="form-input" placeholder="Nomor induk">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" placeholder="email@upgris.ac.id">
+      </div>
+      <div class="form-group">
+        <label class="form-label">No. Telepon</label>
+        <input class="form-input" placeholder="08xxxxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" placeholder="Minimal 8 karakter">
+      </div>
+      <button class="btn btn-success btn-full" onclick="doRegister()">✅ Daftar Sekarang</button>
+      <div class="auth-divider"><span>atau</span></div>
+      <div class="auth-link">Sudah punya akun? <a onclick="showLogin()">Masuk</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- APP                                                    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🎒</div>
+      <div class="sidebar-logo-text">SiBarang<small>UPGRIS</small></div>
+    </div>
+    <div id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar-sb">A</div>
+        <div>
+          <div class="user-name" id="user-name-sb">Admin</div>
+          <div class="user-role" id="user-role-sb">Administrator</div>
+        </div>
+        <button class="user-logout" onclick="doLogout()" title="Keluar">🚪</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <button class="notif-btn" onclick="showPage('notifikasi')">🔔<div class="notif-dot"></div></button>
+        <button class="btn btn-primary btn-sm" id="topbar-action" onclick="openLaporModal()">+ Laporkan Barang</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="dash-greeting">Selamat datang 👋</div>
+            <div class="page-desc">Ringkasan sistem pengelolaan barang hilang dan ditemukan.</div>
+          </div>
+        </div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          <div class="table-card">
+            <div class="table-head"><span class="table-head-title">📊 Statistik Bulanan</span></div>
+            <div style="padding:20px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px">
+                <span style="font-size:12px;color:var(--text3)">Laporan masuk per bulan</span>
+                <span style="font-size:20px;font-weight:800;color:var(--primary)">24</span>
+              </div>
+              <div class="mini-bars">
+                <div class="mini-bar" style="height:40%;background:var(--border)"></div>
+                <div class="mini-bar" style="height:55%;background:var(--border)"></div>
+                <div class="mini-bar" style="height:70%;background:var(--primary-light)"></div>
+                <div class="mini-bar" style="height:50%;background:var(--primary-light)"></div>
+                <div class="mini-bar" style="height:80%;background:var(--primary)"></div>
+                <div class="mini-bar" style="height:65%;background:var(--primary-light)"></div>
+                <div class="mini-bar" style="height:90%;background:var(--primary)"></div>
+                <div class="mini-bar" style="height:75%;background:var(--primary-light)"></div>
+                <div class="mini-bar" style="height:85%;background:var(--secondary)"></div>
+                <div class="mini-bar" style="height:60%;background:var(--secondary)"></div>
+                <div class="mini-bar" style="height:95%;background:var(--accent2)"></div>
+                <div class="mini-bar" style="height:70%;background:var(--accent2)"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px">
+                <span>Jan</span><span>Mar</span><span>Mei</span><span>Jul</span><span>Sep</span><span>Nov</span>
+              </div>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-head"><span class="table-head-title">⚡ Aktivitas Terbaru</span></div>
+            <div class="timeline" style="padding:16px 20px">
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:#dbeafe;border-color:var(--primary)">📦</div>
+                <div class="timeline-body">
+                  <div class="timeline-title">Barang ditemukan: Dompet hitam</div>
+                  <div class="timeline-time">2 jam lalu · Gedung B</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:#dcfce7;border-color:var(--accent2)">✅</div>
+                <div class="timeline-body">
+                  <div class="timeline-title">Klaim berhasil: HP Samsung A52</div>
+                  <div class="timeline-time">5 jam lalu · Diklaim oleh Sinta R.</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:#fef3c7;border-color:var(--accent)">⚠️</div>
+                <div class="timeline-body">
+                  <div class="timeline-title">Laporan baru: Kunci motor hilang</div>
+                  <div class="timeline-time">1 hari lalu · Parkiran A</div>
+                </div>
+              </div>
+              <div class="timeline-item" style="padding-bottom:0">
+                <div class="timeline-dot" style="background:#f3e8ff;border-color:var(--purple)">👤</div>
+                <div class="timeline-body">
+                  <div class="timeline-title">Pengguna baru: Budi Santoso</div>
+                  <div class="timeline-time">2 hari lalu · Registrasi</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-head">
+            <span class="table-head-title">📋 Laporan Terbaru</span>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('semua-barang')">Lihat semua →</button>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Nama Barang</th><th>Kategori</th><th>Jenis</th><th>Lokasi</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="dash-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SEMUA BARANG ── -->
+      <div class="page" id="page-semua-barang">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Daftar Barang</div>
+            <div class="page-desc">Semua laporan barang hilang dan ditemukan.</div>
+          </div>
+          <button class="btn btn-primary" id="btn-tambah-barang" onclick="openLaporModal()">+ Tambah Laporan</button>
+        </div>
+        <div class="table-card">
+          <div class="table-head">
+            <span class="table-head-title">Semua Barang</span>
+            <div class="table-actions">
+              <input class="search-input" placeholder="🔍 Cari barang..." oninput="filterBarang(this.value)">
+              <select class="filter-select" onchange="filterJenis(this.value)">
+                <option value="">Semua Jenis</option>
+                <option value="HILANG">Hilang</option>
+                <option value="DITEMUKAN">Ditemukan</option>
+              </select>
+              <select class="filter-select" onchange="filterStatus(this.value)">
+                <option value="">Semua Status</option>
+                <option value="Aktif">Aktif</option>
+                <option value="Diklaim">Diklaim</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Nama Barang</th><th>Kategori</th><th>Warna</th><th>Jenis</th><th>Lokasi</th><th>Tanggal</th><th>Pelapor</th><th>Status</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="all-barang-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── BARANG HILANG (card view) ── -->
+      <div class="page" id="page-barang-hilang">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🔴 Barang Hilang</div>
+            <div class="page-desc">Laporan barang yang hilang dari pengguna.</div>
+          </div>
+          <button class="btn btn-danger" onclick="openLaporModal('HILANG')">+ Laporkan Hilang</button>
+        </div>
+        <div class="cards-grid" id="cards-hilang"></div>
+      </div>
+
+      <!-- ── BARANG DITEMUKAN ── -->
+      <div class="page" id="page-barang-ditemukan">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🟢 Barang Ditemukan</div>
+            <div class="page-desc">Barang yang telah ditemukan dan menunggu pemilik.</div>
+          </div>
+          <button class="btn btn-success" onclick="openLaporModal('DITEMUKAN')">+ Input Ditemukan</button>
+        </div>
+        <div class="cards-grid" id="cards-ditemukan"></div>
+      </div>
+
+      <!-- ── MANAJEMEN PENGGUNA ── -->
+      <div class="page" id="page-pengguna">
+        <div class="page-header">
+          <div>
+            <div class="page-title">👥 Manajemen Pengguna</div>
+            <div class="page-desc">Kelola akun pengguna yang terdaftar di sistem.</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-head">
+            <span class="table-head-title">Data Pengguna</span>
+            <input class="search-input" placeholder="🔍 Cari pengguna...">
+          </div>
+          <table>
+            <thead><tr><th>#</th><th>Nama</th><th>Email</th><th>Peran</th><th>Terdaftar</th><th>Total Laporan</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3)">001</span></td>
+                <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1a56db,#0ea5e9);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">R</div><div><div style="font-weight:600">Robiatul Adawiyyah</div><div style="font-size:11px;color:var(--text3)">24670075</div></div></div></td>
+                <td>robiatul@upgris.ac.id</td>
+                <td><span class="badge badge-blue">Pengguna</span></td>
+                <td style="font-size:12px">10 Jan 2026</td>
+                <td style="font-weight:700;color:var(--primary)">3</td>
+                <td><span class="badge badge-green">Aktif</span></td>
+                <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">✏️</button><button class="btn btn-danger btn-sm">🗑️</button></div></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3)">002</span></td>
+                <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">D</div><div><div style="font-weight:600">Dita Nur Ristiyana</div><div style="font-size:11px;color:var(--text3)">24670110</div></div></div></td>
+                <td>dita@upgris.ac.id</td>
+                <td><span class="badge badge-blue">Pengguna</span></td>
+                <td style="font-size:12px">10 Jan 2026</td>
+                <td style="font-weight:700;color:var(--primary)">5</td>
+                <td><span class="badge badge-green">Aktif</span></td>
+                <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">✏️</button><button class="btn btn-danger btn-sm">🗑️</button></div></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3)">003</span></td>
+                <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">B</div><div><div style="font-weight:600">Budi Santoso</div><div style="font-size:11px;color:var(--text3)">24670043</div></div></div></td>
+                <td>budi@upgris.ac.id</td>
+                <td><span class="badge badge-purple">Petugas</span></td>
+                <td style="font-size:12px">15 Jan 2026</td>
+                <td style="font-weight:700;color:var(--primary)">12</td>
+                <td><span class="badge badge-green">Aktif</span></td>
+                <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">✏️</button><button class="btn btn-danger btn-sm">🗑️</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── LAPORAN ── -->
+      <div class="page" id="page-laporan">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📄 Laporan Sistem</div>
+            <div class="page-desc">Ringkasan dan rekap data barang hilang dan ditemukan.</div>
+          </div>
+          <button class="btn btn-primary">📥 Export PDF</button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card blue"><div class="stat-icon">📦</div><div class="stat-num">47</div><div class="stat-label">Total Laporan Masuk</div></div>
+          <div class="stat-card orange"><div class="stat-icon">🔴</div><div class="stat-num">28</div><div class="stat-label">Barang Hilang</div></div>
+          <div class="stat-card green"><div class="stat-icon">🟢</div><div class="stat-num">19</div><div class="stat-label">Barang Ditemukan</div></div>
+          <div class="stat-card purple"><div class="stat-icon">✅</div><div class="stat-num">11</div><div class="stat-label">Berhasil Diklaim</div></div>
+        </div>
+        <div class="table-card">
+          <div class="table-head">
+            <span class="table-head-title">Rekap per Kategori</span>
+          </div>
+          <table>
+            <thead><tr><th>Kategori</th><th>Hilang</th><th>Ditemukan</th><th>Diklaim</th><th>Selesai</th><th>Tingkat Keberhasilan</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:600">📱 Elektronik</td><td><span class="badge badge-red">8</span></td><td><span class="badge badge-green">5</span></td><td><span class="badge badge-blue">3</span></td><td>2</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:62%;height:100%;background:var(--accent2);border-radius:3px"></div></div><span style="font-size:11px;font-weight:600">62%</span></div></td></tr>
+              <tr><td style="font-weight:600">👜 Dompet & Tas</td><td><span class="badge badge-red">6</span></td><td><span class="badge badge-green">4</span></td><td><span class="badge badge-blue">4</span></td><td>3</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:75%;height:100%;background:var(--accent2);border-radius:3px"></div></div><span style="font-size:11px;font-weight:600">75%</span></div></td></tr>
+              <tr><td style="font-weight:600">🔑 Kunci</td><td><span class="badge badge-red">7</span></td><td><span class="badge badge-green">3</span></td><td><span class="badge badge-blue">2</span></td><td>1</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:43%;height:100%;background:var(--warn);border-radius:3px"></div></div><span style="font-size:11px;font-weight:600">43%</span></div></td></tr>
+              <tr><td style="font-weight:600">🪪 Kartu Identitas</td><td><span class="badge badge-red">4</span></td><td><span class="badge badge-green">4</span></td><td><span class="badge badge-blue">2</span></td><td>4</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:100%;height:100%;background:var(--accent2);border-radius:3px"></div></div><span style="font-size:11px;font-weight:600">100%</span></div></td></tr>
+              <tr><td style="font-weight:600">👕 Pakaian</td><td><span class="badge badge-red">3</span></td><td><span class="badge badge-green">3</span></td><td><span class="badge badge-blue">0</span></td><td>0</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:0%;height:100%;background:var(--accent2);border-radius:3px"></div></div><span style="font-size:11px;font-weight:600">0%</span></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── NOTIFIKASI ── -->
+      <div class="page" id="page-notifikasi">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🔔 Notifikasi</div>
+            <div class="page-desc">Semua pemberitahuan dan update sistem.</div>
+          </div>
+          <button class="btn btn-ghost btn-sm">Tandai Semua Dibaca</button>
+        </div>
+        <div class="table-card" style="overflow:hidden">
+          <div class="notif-list">
+            <div class="notif-item unread" onclick="this.classList.remove('unread')">
+              <div class="notif-icon" style="background:#dbeafe">🟢</div>
+              <div class="notif-text">
+                <div class="notif-title">Barang Anda ditemukan!</div>
+                <div class="notif-desc">Dompet hitam yang Anda laporkan telah ditemukan di Gedung B lantai 2. Segera ambil ke petugas.</div>
+                <div class="notif-time">2 jam lalu</div>
+              </div>
+              <div class="notif-dot2"></div>
+            </div>
+            <div class="notif-item unread" onclick="this.classList.remove('unread')">
+              <div class="notif-icon" style="background:#dcfce7">✅</div>
+              <div class="notif-text">
+                <div class="notif-title">Klaim berhasil diverifikasi</div>
+                <div class="notif-desc">Petugas telah memverifikasi klaim Anda untuk barang HP Samsung A52. Silakan ambil di kantor petugas.</div>
+                <div class="notif-time">5 jam lalu</div>
+              </div>
+              <div class="notif-dot2"></div>
+            </div>
+            <div class="notif-item" onclick="">
+              <div class="notif-icon" style="background:#fef3c7">⚠️</div>
+              <div class="notif-text">
+                <div class="notif-title">Laporan Anda diproses</div>
+                <div class="notif-desc">Laporan barang hilang kunci motor Honda Anda sudah diterima dan sedang diproses oleh petugas.</div>
+                <div class="notif-time">1 hari lalu</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon" style="background:#f3e8ff">📢</div>
+              <div class="notif-text">
+                <div class="notif-title">Pengumuman sistem</div>
+                <div class="notif-desc">SiBarang kini mendukung upload foto barang untuk mempercepat proses pencocokan. Fitur baru telah aktif!</div>
+                <div class="notif-time">3 hari lalu</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon" style="background:#fee2e2">❗</div>
+              <div class="notif-text">
+                <div class="notif-title">Laporan membutuhkan informasi tambahan</div>
+                <div class="notif-desc">Petugas meminta deskripsi lebih detail untuk laporan barang hilang Anda nomor #LP-002.</div>
+                <div class="notif-time">5 hari lalu</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROFIL ── -->
+      <div class="page" id="page-profil">
+        <div class="profile-header">
+          <div class="profile-avatar" id="profile-avatar">A</div>
+          <div>
+            <div class="profile-name" id="profile-name">Admin UPGRIS</div>
+            <div style="font-size:13px;opacity:.8;margin-top:3px" id="profile-email">admin@upgris.ac.id</div>
+            <div class="profile-role-badge" id="profile-role">Administrator</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="table-card">
+            <div class="table-head"><span class="table-head-title">Informasi Akun</span></div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+              <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-input" id="pf-nama" value="Admin UPGRIS"></div>
+              <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="pf-email" value="admin@upgris.ac.id"></div>
+              <div class="form-group"><label class="form-label">No. Telepon</label><input class="form-input" value="08123456789"></div>
+              <div class="form-group"><label class="form-label">Peran</label><input class="form-input" disabled id="pf-role" value="Administrator"></div>
+              <button class="btn btn-primary" onclick="saveProfile()">💾 Simpan Perubahan</button>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-head"><span class="table-head-title">Ganti Password</span></div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+              <div class="form-group"><label class="form-label">Password Lama</label><input class="form-input" type="password" placeholder="Masukkan password lama"></div>
+              <div class="form-group"><label class="form-label">Password Baru</label><input class="form-input" type="password" placeholder="Min. 8 karakter"></div>
+              <div class="form-group"><label class="form-label">Konfirmasi Password</label><input class="form-input" type="password" placeholder="Ulangi password baru"></div>
+              <button class="btn btn-warn">🔒 Ganti Password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STATUS LAPORAN (pengguna) ── -->
+      <div class="page" id="page-status-laporan">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📋 Status Laporan Saya</div>
+            <div class="page-desc">Pantau perkembangan laporan barang hilang Anda.</div>
+          </div>
+          <button class="btn btn-primary" onclick="openLaporModal()">+ Laporan Baru</button>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead><tr><th>No Laporan</th><th>Nama Barang</th><th>Jenis</th><th>Tanggal</th><th>Status</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span style="font-family:'JetBrains Mono',monospace;color:var(--primary);font-weight:600">#LP-001</span></td>
+                <td style="font-weight:600">Dompet Kulit Hitam</td>
+                <td><span class="badge badge-red">🔴 Hilang</span></td>
+                <td style="font-size:12px">10 Jan 2026</td>
+                <td><span class="badge badge-green">✅ Ditemukan</span></td>
+                <td style="font-size:12px;color:var(--text2)">Ada di Gedung B, hubungi petugas</td>
+                <td><button class="btn btn-success btn-sm" onclick="showToastMsg('Klaim berhasil diajukan!','success')">Klaim</button></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:'JetBrains Mono',monospace;color:var(--primary);font-weight:600">#LP-002</span></td>
+                <td style="font-weight:600">Kunci Motor Honda Beat</td>
+                <td><span class="badge badge-red">🔴 Hilang</span></td>
+                <td style="font-size:12px">15 Jan 2026</td>
+                <td><span class="badge badge-orange">🔄 Diproses</span></td>
+                <td style="font-size:12px;color:var(--text2)">Sedang dicari oleh petugas</td>
+                <td><button class="btn btn-ghost btn-sm">Detail</button></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:'JetBrains Mono',monospace;color:var(--primary);font-weight:600">#LP-003</span></td>
+                <td style="font-weight:600">HP Samsung A52 Biru</td>
+                <td><span class="badge badge-red">🔴 Hilang</span></td>
+                <td style="font-size:12px">18 Jan 2026</td>
+                <td><span class="badge badge-gray">⏳ Menunggu</span></td>
+                <td style="font-size:12px;color:var(--text2)">Laporan baru diterima</td>
+                <td><button class="btn btn-ghost btn-sm">Detail</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+let currentRole = 'admin';
+let currentUser = {};
+
+const sampleBarang = [
+  {id:'B001', nama:'Dompet Kulit Hitam', kategori:'Dompet & Tas', warna:'Hitam', jenis:'HILANG', lokasi:'Gedung B - Kantin', tanggal:'2026-01-10', pelapor:'Robiatul A.', status:'Ditemukan', icon:'👜'},
+  {id:'B002', nama:'HP Samsung A52', kategori:'Elektronik', warna:'Biru', jenis:'HILANG', lokasi:'Gedung A - Lantai 2', tanggal:'2026-01-12', pelapor:'Dita N.', status:'Aktif', icon:'📱'},
+  {id:'B003', nama:'Kunci Motor Honda', kategori:'Kunci', warna:'Hitam', jenis:'HILANG', lokasi:'Lapangan Parkir', tanggal:'2026-01-15', pelapor:'Budi S.', status:'Aktif', icon:'🔑'},
+  {id:'B004', nama:'Dompet Wanita Pink', kategori:'Dompet & Tas', warna:'Pink', jenis:'DITEMUKAN', lokasi:'Gedung C - Perpustakaan', tanggal:'2026-01-13', pelapor:'Petugas', status:'Menunggu Klaim', icon:'👜'},
+  {id:'B005', nama:'KTM UPGRIS', kategori:'Kartu Identitas', warna:'Biru', jenis:'DITEMUKAN', lokasi:'Koridor Utama', tanggal:'2026-01-16', pelapor:'Petugas', status:'Menunggu Klaim', icon:'🪪'},
+  {id:'B006', nama:'Jaket Hitam Polos', kategori:'Pakaian', warna:'Hitam', jenis:'HILANG', lokasi:'Aula', tanggal:'2026-01-17', pelapor:'Ahmad R.', status:'Aktif', icon:'🧥'},
+  {id:'B007', nama:'Airpods Putih', kategori:'Elektronik', warna:'Putih', jenis:'DITEMUKAN', lokasi:'Gedung A - Lantai 1', tanggal:'2026-01-18', pelapor:'Petugas', status:'Diklaim', icon:'🎧'},
+  {id:'B008', nama:'Charger Laptop', kategori:'Elektronik', warna:'Putih', jenis:'DITEMUKAN', lokasi:'Gedung B - Kantin', tanggal:'2026-01-19', pelapor:'Petugas', status:'Menunggu Klaim', icon:'🔌'},
+];
+
+// ═══════════════════════════════════════════════════════
+// ROLE MENU CONFIG
+// ═══════════════════════════════════════════════════════
+const menus = {
+  admin: [
+    {section:'Menu Utama'},
+    {id:'dashboard', label:'Dashboard', icon:'🏠'},
+    {id:'semua-barang', label:'Semua Barang', icon:'📦', badge:3},
+    {id:'barang-hilang', label:'Barang Hilang', icon:'🔴'},
+    {id:'barang-ditemukan', label:'Barang Ditemukan', icon:'🟢'},
+    {section:'Manajemen'},
+    {id:'pengguna', label:'Data Pengguna', icon:'👥'},
+    {id:'laporan', label:'Laporan', icon:'📊'},
+    {section:'Akun'},
+    {id:'notifikasi', label:'Notifikasi', icon:'🔔', badge:2},
+    {id:'profil', label:'Profil Saya', icon:'👤'},
+  ],
+  petugas: [
+    {section:'Menu Utama'},
+    {id:'dashboard', label:'Dashboard', icon:'🏠'},
+    {id:'barang-ditemukan', label:'Input Barang Ditemukan', icon:'🟢'},
+    {id:'semua-barang', label:'Validasi Laporan', icon:'📋', badge:5},
+    {section:'Akun'},
+    {id:'notifikasi', label:'Notifikasi', icon:'🔔', badge:2},
+    {id:'profil', label:'Profil Saya', icon:'👤'},
+  ],
+  pengguna: [
+    {section:'Menu Utama'},
+    {id:'dashboard', label:'Beranda', icon:'🏠'},
+    {id:'barang-hilang', label:'Laporkan Barang Hilang', icon:'🔴'},
+    {id:'barang-ditemukan', label:'Cari Barang Ditemukan', icon:'🟢'},
+    {id:'status-laporan', label:'Status Laporan Saya', icon:'📋'},
+    {section:'Akun'},
+    {id:'notifikasi', label:'Notifikasi', icon:'🔔', badge:2},
+    {id:'profil', label:'Profil Saya', icon:'👤'},
+  ]
+};
+
+const userConfig = {
+  admin:   {name:'Admin UPGRIS', role:'Administrator', email:'admin@upgris.ac.id', avatar:'A', color:'#1a56db'},
+  petugas: {name:'Budi Santoso', role:'Petugas',       email:'budi@upgris.ac.id',  avatar:'B', color:'#8b5cf6'},
+  pengguna:{name:'Robiatul A.',  role:'Pengguna',       email:'robiatul@upgris.ac.id', avatar:'R', color:'#10b981'},
+};
+
+const statsConfig = {
+  admin: [
+    {num:'47', label:'Total Laporan', icon:'📦', cls:'blue'},
+    {num:'28', label:'Barang Hilang', icon:'🔴', cls:'red'},
+    {num:'19', label:'Barang Ditemukan', icon:'🟢', cls:'green'},
+    {num:'11', label:'Berhasil Diklaim', icon:'✅', cls:'purple'},
+    {num:'32', label:'Pengguna Aktif', icon:'👥', cls:'orange'},
+  ],
+  petugas: [
+    {num:'19', label:'Barang Ditemukan', icon:'🟢', cls:'green'},
+    {num:'5',  label:'Menunggu Validasi', icon:'⚠️', cls:'orange'},
+    {num:'11', label:'Sudah Diklaim', icon:'✅', cls:'blue'},
+    {num:'3',  label:'Laporan Hari Ini', icon:'📅', cls:'purple'},
+  ],
+  pengguna: [
+    {num:'3', label:'Laporan Saya', icon:'📋', cls:'blue'},
+    {num:'1', label:'Sedang Dicari', icon:'🔄', cls:'orange'},
+    {num:'1', label:'Ditemukan', icon:'🟢', cls:'green'},
+    {num:'1', label:'Menunggu Klaim', icon:'⏳', cls:'purple'},
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════
+function selectRole(el, role) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentRole = role;
+}
+
+function showRegister() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'block';
+}
+
+function showLogin() {
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+
+function doLogin() {
+  const u = document.getElementById('inp-username').value;
+  const p = document.getElementById('inp-password').value;
+  if (!u || !p) { showToastMsg('Lengkapi username dan password!', 'error'); return; }
+  loadApp(currentRole);
+}
+
+function doRegister() {
+  showToastMsg('Akun berhasil dibuat! Silakan login.', 'success');
+  setTimeout(showLogin, 1200);
+}
+
+function doLogout() {
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('auth-page').style.display = 'flex';
+  document.getElementById('inp-username').value = '';
+  document.getElementById('inp-password').value = '';
+  showLogin();
+}
+
+// ═══════════════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════════════
+function loadApp(role) {
+  currentRole = role;
+  const cfg = userConfig[role];
+  currentUser = cfg;
+
+  document.getElementById('auth-page').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+
+  // Sidebar nav
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = menus[role].map(m => {
+    if (m.section) return `<div class="sidebar-section">${m.section}</div>`;
+    return `<div class="nav-item" data-page="${m.id}" onclick="showPage('${m.id}')">
+      <span class="nav-icon">${m.icon}</span>
+      <span>${m.label}</span>
+      ${m.badge ? `<span class="nav-badge">${m.badge}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  // User info
+  document.getElementById('user-avatar-sb').textContent = cfg.avatar;
+  document.getElementById('user-avatar-sb').style.background = `linear-gradient(135deg, ${cfg.color}, #0ea5e9)`;
+  document.getElementById('user-name-sb').textContent = cfg.name;
+  document.getElementById('user-role-sb').textContent = cfg.role;
+
+  // Profile
+  document.getElementById('profile-avatar').textContent = cfg.avatar;
+  document.getElementById('profile-name').textContent = cfg.name;
+  document.getElementById('profile-email').textContent = cfg.email;
+  document.getElementById('profile-role').value = cfg.role;
+  document.getElementById('pf-nama').value = cfg.name;
+  document.getElementById('pf-email').value = cfg.email;
+  document.getElementById('pf-role').value = cfg.role;
+
+  // Topbar action
+  const ta = document.getElementById('topbar-action');
+  if (role === 'pengguna') { ta.textContent = '+ Laporkan Barang'; ta.style.display = ''; }
+  else if (role === 'petugas') { ta.textContent = '+ Input Barang Ditemukan'; ta.style.display = ''; }
+  else { ta.textContent = '+ Tambah Data'; ta.style.display = ''; }
+
+  // Dashboard greeting
+  document.getElementById('dash-greeting').textContent = `Selamat datang, ${cfg.name.split(' ')[0]} 👋`;
+
+  // Render stats
+  const sg = document.getElementById('stats-grid');
+  sg.innerHTML = (statsConfig[role] || []).map(s =>
+    `<div class="stat-card ${s.cls}">
+      <div class="stat-icon">${s.icon}</div>
+      <div class="stat-num">${s.num}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>`
+  ).join('');
+
+  renderTables();
+  showPage('dashboard');
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER DATA
+// ═══════════════════════════════════════════════════════
+function statusBadge(s) {
+  const m = {
+    'Aktif':'badge-blue','Ditemukan':'badge-green','Menunggu Klaim':'badge-orange',
+    'Diklaim':'badge-purple','Selesai':'badge-gray','Diproses':'badge-orange'
+  };
+  return `<span class="badge ${m[s]||'badge-gray'}">${s}</span>`;
+}
+
+function jenisBadge(j) {
+  return j === 'HILANG'
+    ? '<span class="badge badge-red">🔴 Hilang</span>'
+    : '<span class="badge badge-green">🟢 Ditemukan</span>';
+}
+
+function renderRow(b, idx, showEdit=true) {
+  return `<tr>
+    <td><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">${b.id}</span></td>
+    <td><div style="display:flex;align-items:center;gap:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px">${b.icon}</div>
+      <span style="font-weight:600">${b.nama}</span>
+    </div></td>
+    <td><span class="badge badge-gray">${b.kategori}</span></td>
+    ${showEdit ? `<td>${b.warna}</td>` : ''}
+    <td>${jenisBadge(b.jenis)}</td>
+    <td style="font-size:12px">${b.lokasi}</td>
+    <td style="font-size:12px">${b.tanggal}</td>
+    ${showEdit ? `<td style="font-size:12px">${b.pelapor}</td>` : ''}
+    <td>${statusBadge(b.status)}</td>
+    <td><div style="display:flex;gap:5px">
+      <button class="btn btn-ghost btn-sm" onclick="showDetail(${idx})">👁️</button>
+      ${showEdit && currentRole !== 'pengguna' ? `<button class="btn btn-warn btn-sm">✏️</button><button class="btn btn-danger btn-sm" onclick="hapusBarang(${idx})">🗑️</button>` : ''}
+    </div></td>
+  </tr>`;
+}
+
+function renderTables() {
+  // Dash table (5 terbaru)
+  const dt = document.getElementById('dash-table');
+  if (dt) dt.innerHTML = sampleBarang.slice(0,5).map((b,i) =>
+    `<tr>
+      <td><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">${b.id}</span></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:7px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px">${b.icon}</div><span style="font-weight:600">${b.nama}</span></div></td>
+      <td><span class="badge badge-gray">${b.kategori}</span></td>
+      <td>${jenisBadge(b.jenis)}</td>
+      <td style="font-size:12px">${b.lokasi}</td>
+      <td style="font-size:12px">${b.tanggal}</td>
+      <td>${statusBadge(b.status)}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="showDetail(${i})">👁️ Detail</button></td>
+    </tr>`
+  ).join('');
+
+  // All table
+  renderAllTable(sampleBarang);
+
+  // Cards
+  renderCards('cards-hilang', sampleBarang.filter(b => b.jenis === 'HILANG'));
+  renderCards('cards-ditemukan', sampleBarang.filter(b => b.jenis === 'DITEMUKAN'));
+}
+
+function renderAllTable(data) {
+  const tb = document.getElementById('all-barang-table');
+  if (!tb) return;
+  tb.innerHTML = data.map((b,i) => renderRow(b, i, true)).join('');
+}
+
+function renderCards(containerId, data) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!data.length) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📭</div><div class="empty-state-text">Belum ada data</div><div class="empty-state-sub">Data akan muncul di sini.</div></div>`;
+    return;
+  }
+  el.innerHTML = data.map((b,i) =>
+    `<div class="item-card" onclick="showDetail(${sampleBarang.indexOf(b)})">
+      <div class="item-card-img">
+        <span style="font-size:52px">${b.icon}</span>
+        <div class="item-card-status">${jenisBadge(b.jenis)}</div>
+      </div>
+      <div class="item-card-body">
+        <div class="item-card-title">${b.nama}</div>
+        <div class="item-card-meta">
+          <span>🏷️ ${b.kategori}</span>
+          <span>🎨 ${b.warna}</span>
+          <span>📍 ${b.lokasi}</span>
+          <span>📅 ${b.tanggal}</span>
+        </div>
+      </div>
+      <div class="item-card-foot">
+        ${statusBadge(b.status)}
+        ${b.jenis === 'DITEMUKAN' && currentRole === 'pengguna'
+          ? `<button class="btn btn-success btn-sm" onclick="event.stopPropagation();klaimBarang('${b.nama}')">Klaim</button>`
+          : `<button class="btn btn-ghost btn-sm">Detail</button>`}
+      </div>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// FILTER
+// ═══════════════════════════════════════════════════════
+let filterQ = '', filterJ = '', filterS = '';
+function filterBarang(q) { filterQ = q.toLowerCase(); applyFilter(); }
+function filterJenis(j) { filterJ = j; applyFilter(); }
+function filterStatus(s) { filterS = s; applyFilter(); }
+function applyFilter() {
+  let data = sampleBarang.filter(b => {
+    const matchQ = !filterQ || b.nama.toLowerCase().includes(filterQ) || b.kategori.toLowerCase().includes(filterQ);
+    const matchJ = !filterJ || b.jenis === filterJ;
+    const matchS = !filterS || b.status === filterS;
+    return matchQ && matchJ && matchS;
+  });
+  renderAllTable(data);
+}
+
+// ═══════════════════════════════════════════════════════
+// DETAIL MODAL
+// ═══════════════════════════════════════════════════════
+function showDetail(idx) {
+  const b = sampleBarang[idx];
+  document.getElementById('modal-detail-body').innerHTML = `
+    <div style="text-align:center;padding:20px 0 16px">
+      <div style="font-size:64px;margin-bottom:12px">${b.icon}</div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:6px">${b.nama}</div>
+      ${jenisBadge(b.jenis)} &nbsp; ${statusBadge(b.status)}
+    </div>
+    <div class="detail-grid" style="margin-top:16px">
+      <div class="detail-item"><label>ID Barang</label><p style="font-family:'JetBrains Mono',monospace;color:var(--primary)">${b.id}</p></div>
+      <div class="detail-item"><label>Kategori</label><p>${b.kategori}</p></div>
+      <div class="detail-item"><label>Warna</label><p>${b.warna}</p></div>
+      <div class="detail-item"><label>Lokasi</label><p>${b.lokasi}</p></div>
+      <div class="detail-item"><label>Tanggal</label><p>${b.tanggal}</p></div>
+      <div class="detail-item"><label>Pelapor</label><p>${b.pelapor}</p></div>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-top:4px;font-size:13px;color:var(--text2)">
+      <strong style="color:var(--text)">Deskripsi:</strong><br>
+      Barang ${b.jenis === 'HILANG' ? 'hilang' : 'ditemukan'} di ${b.lokasi} pada tanggal ${b.tanggal}. Warna ${b.warna.toLowerCase()}, kategori ${b.kategori.toLowerCase()}.
+    </div>`;
+
+  let foot = `<button class="btn btn-ghost" onclick="closeModal('modal-detail')">Tutup</button>`;
+  if (currentRole === 'pengguna' && b.jenis === 'DITEMUKAN')
+    foot += `<button class="btn btn-success" onclick="klaimBarang('${b.nama}')">🙋 Ajukan Klaim</button>`;
+  if (currentRole === 'petugas' || currentRole === 'admin')
+    foot += `<button class="btn btn-primary" onclick="showToastMsg('Status diperbarui','success');closeModal('modal-detail')">✏️ Update Status</button>`;
+  document.getElementById('modal-detail-foot').innerHTML = foot;
+  openModal('modal-detail');
+}
+
+// ═══════════════════════════════════════════════════════
+// CRUD ACTIONS
+// ═══════════════════════════════════════════════════════
+function openLaporModal(jenis) {
+  document.getElementById('modal-barang-title').textContent = jenis === 'DITEMUKAN' ? 'Input Barang Ditemukan' : 'Laporkan Barang Hilang';
+  if (jenis) document.getElementById('inp-jenis').value = jenis;
+  document.getElementById('inp-tanggal').value = new Date().toISOString().split('T')[0];
+  openModal('modal-barang');
+}
+
+function submitBarang() {
+  const nama = document.getElementById('inp-nama-barang').value;
+  const kat  = document.getElementById('inp-kategori').value;
+  const lok  = document.getElementById('inp-lokasi').value;
+  if (!nama || !kat || !lok) { showToastMsg('Lengkapi semua field wajib!', 'error'); return; }
+
+  const icons = {'Elektronik':'📱','Dompet & Tas':'👜','Kunci':'🔑','Pakaian':'🧥','Kartu Identitas':'🪪','Lainnya':'📦'};
+  const jenis = document.getElementById('inp-jenis').value;
+  const newId = 'B' + String(sampleBarang.length + 1).padStart(3,'0');
+
+  sampleBarang.unshift({
+    id: newId, nama,
+    kategori: kat,
+    warna: document.getElementById('inp-warna').value || '-',
+    jenis,
+    lokasi: lok,
+    tanggal: document.getElementById('inp-tanggal').value,
+    pelapor: currentUser.name,
+    status: 'Aktif',
+    icon: icons[kat] || '📦'
+  });
+
+  closeModal('modal-barang');
+  renderTables();
+  showToastMsg(`✅ Laporan "${nama}" berhasil dikirim!`, 'success');
+  ['inp-nama-barang','inp-warna','inp-deskripsi'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inp-kategori').value = '';
+  document.getElementById('inp-lokasi').value = '';
+}
+
+function hapusBarang(idx) {
+  if (!confirm('Yakin hapus data ini?')) return;
+  sampleBarang.splice(idx, 1);
+  renderTables();
+  showToastMsg('Data berhasil dihapus.', 'error');
+}
+
+function klaimBarang(nama) {
+  closeModal('modal-detail');
+  showToastMsg(`🙋 Klaim "${nama}" berhasil diajukan! Tunggu verifikasi petugas.`, 'success');
+}
+
+function saveProfile() {
+  showToastMsg('✅ Profil berhasil disimpan!', 'success');
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+const pageTitles = {
+  'dashboard':'Dashboard', 'semua-barang':'Semua Barang',
+  'barang-hilang':'Barang Hilang', 'barang-ditemukan':'Barang Ditemukan',
+  'pengguna':'Manajemen Pengguna', 'laporan':'Laporan Sistem',
+  'notifikasi':'Notifikasi', 'profil':'Profil Saya',
+  'status-laporan':'Status Laporan Saya'
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById(`page-${id}`);
+  if (page) page.classList.add('active');
+  const navItem = document.querySelector(`[data-page="${id}"]`);
+  if (navItem) navItem.classList.add('active');
+  document.getElementById('topbar-title').textContent = pageTitles[id] || id;
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+document.querySelectorAll('.modal-overlay').forEach(el =>
+  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); }));
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function showToastMsg(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast toast-${type}`; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT — Default: tampil login
+// ═══════════════════════════════════════════════════════
+// Uncomment baris di bawah untuk langsung masuk sebagai role tertentu:
+// loadApp('admin');
+// loadApp('petugas');
+// loadApp('pengguna');
+</script>
+</body>
+</html>
